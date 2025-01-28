@@ -142,6 +142,7 @@ def predict_per_tree(
         Prediction output. Expected output dimensions:
         (num_row, num_tree, leaf_vector_shape[0] * leaf_vector_shape[1])
     """
+    print("We can do stuff")
 
     config = GTILConfig(nthread=nthread, predict_type="score_per_tree")
     return _predict_impl(model, data, config=config)
