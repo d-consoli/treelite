@@ -15,7 +15,6 @@
 #include <limits>
 #include <mutex>
 #include <type_traits>
-
 #include <treelite/detail/omp_exception.h>
 #include <treelite/logging.h>
 
@@ -26,10 +25,6 @@
 // Stubs for OpenMP functions
 
 inline int omp_get_max_threads() {
-  return 1;
-}
-
-inline int omp_get_num_procs() {
   return 1;
 }
 
@@ -57,7 +52,7 @@ inline int OmpGetThreadLimit() {
 }
 
 inline int MaxNumThread() {
-  return std::min(std::min(omp_get_num_procs(), omp_get_max_threads()), OmpGetThreadLimit());
+  return std::min(omp_get_max_threads(), OmpGetThreadLimit());
 }
 
 /*!
@@ -73,6 +68,7 @@ struct ThreadConfig {
    */
   explicit ThreadConfig(int nthread) {
     if (nthread <= 0) {
+      omp_set_num_threads(nthread);
       nthread = MaxNumThread();
       TREELITE_CHECK_GE(nthread, 1) << "Invalid number of threads configured in OpenMP";
     } else {

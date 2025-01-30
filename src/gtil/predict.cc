@@ -235,7 +235,6 @@ void PredictRaw(Model const& model, MatrixAccessorT accessor, std::uint64_t num_
       = *std::max_element(model.num_class.Data(), model.num_class.Data() + model.num_target);
   auto output_view = Array3DView<InputT>(output, num_row, model.num_target, max_num_class);
   std::size_t const num_tree = model.GetNumTree();
-  std::fill_n(output, output_view.size(), InputT{});  // Fill with 0's
   std::visit(
       [&](auto&& concrete_model) {
         detail::threading_utils::ParallelFor(std::uint64_t(0), num_row, thread_config,
@@ -352,7 +351,6 @@ void PredictScoreByTree(Model const& model, MatrixAccessorT accessor, std::uint6
       = *std::max_element(model.num_class.Data(), model.num_class.Data() + model.num_target);
   auto output_view = Array3DView<InputT>(
       output, num_row, num_tree, model.leaf_vector_shape[0] * model.leaf_vector_shape[1]);
-  std::fill_n(output, output_view.size(), InputT{});  // Fill with 0's
   std::visit(
       [&](auto&& concrete_model) {
         std::size_t const num_tree = concrete_model.trees.size();

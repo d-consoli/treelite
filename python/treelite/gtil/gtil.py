@@ -142,7 +142,6 @@ def predict_per_tree(
         Prediction output. Expected output dimensions:
         (num_row, num_tree, leaf_vector_shape[0] * leaf_vector_shape[1])
     """
-    print("We can do stuff")
 
     config = GTILConfig(nthread=nthread, predict_type="score_per_tree")
     return _predict_impl(model, data, config=config)
@@ -164,18 +163,12 @@ def _predict_impl(
     is_dense = isinstance(data, np.ndarray)
 
     if is_dense:
+        assert str(model.input_type) == str(data.dtype), "Model data type does not match input data type"
+        assert data.shape[1] == model.num_feature, "Data columns is different then the model number of features"
+        
         data = np.asarray(
             data, dtype=typestr_to_numpy_type(model.input_type), order="C"
         )
-        if data.shape[1] < model.num_feature:
-            # Pad missing features with NAs
-            data = np.pad(
-                data,
-                ((0, 0), (0, model.num_feature - data.shape[1])),
-                "constant",
-                constant_values="nan",
-            )
-            assert data.shape[1] == model.num_feature
     else:
         assert isinstance(data, csr_matrix)
         elems = np.asarray(
